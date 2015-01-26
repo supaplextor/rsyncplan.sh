@@ -23,8 +23,10 @@ my $local_isos;
 # FIXME: ask a debian isp ml how they'd approach this for their distro, and many others?
 
 $remote_sums{debian}	= "http://ftp.debian.org/debian/dists/stable/main/installer-$arch/current/images/SHA256SUMS";
-$local_sums{debian}	= "debian-stable-$arch-netinst-sums.txt";
-$local_isos{debian}	= "debian-stable-$arch-netinst-mini.iso";
+$local_sums{debian}	= "debian-stable-amd64-netinst-sums.txt";
+# $local_isos{debian}	= "debian-stable-amd64-netinst-mini.iso";
+$local_isos{debian}	= "/home/supaplex/iso-images/linux/debian/debian-stable-amd64-netinst-mini.iso";
+
 $remote_sums		= $remote_sums{$distro};
 $local_sums		= $local_sums{$distro};
 $local_isos		= $local_isos{$distro};
@@ -70,7 +72,11 @@ if (-s $local_isos) {
 		my $url		= dirname($remote_sums{$distro})."/$uri_right";
 		warn		"url is $url";
 
-		system("aria2c -x5 -k10m -o ".quotemeta($local_isos)." ".quotemeta($url));
+		system join("", "aria2c", " -x5 ",
+			"--auto-file-renaming=false ",
+			" -d "	=> quotemeta(dirname($local_isos)),
+			" -o "	=> quotemeta($local_isos),
+			" " 	=> quotemeta($url));
 
 		last;
 	}
