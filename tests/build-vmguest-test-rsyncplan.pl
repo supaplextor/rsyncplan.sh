@@ -74,7 +74,7 @@ if (-s $local_isos) {
 
 		system join("", "aria2c", " -x5 ",
 			"--auto-file-renaming=false ",
-			" -d "	=> quotemeta(dirname($local_isos)),
+			" -d "	=> quotemeta(`pwd | tr -d "\n"`),
 			" -o "	=> quotemeta($local_isos),
 			" " 	=> quotemeta($url));
 
