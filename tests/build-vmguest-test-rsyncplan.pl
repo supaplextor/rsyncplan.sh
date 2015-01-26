@@ -92,7 +92,7 @@ my $GUEST_NAME		= "clean-debian-stable-$$";
 my $GUEST_RAM		= "500mb";
 
 my $VBoxManage		= "VBoxManage";
-  $VBoxManage		= "echo";
+#  $VBoxManage		= "echo";
 
 my $qm_GUEST_NAME	= quotemeta $GUEST_NAME;
 my $qm_GUEST_RAM	= quotemeta $GUEST_RAM;
@@ -100,12 +100,12 @@ my $qm_GUEST_RAM	= quotemeta $GUEST_RAM;
 sub createvm { return system ($VBoxManage, createvm => @_) };
 sub modifyvm { return system ($VBoxManage, modifyvm => @_) };
 
-createvm qq(--name "${qm_GUEST_NAME}" --register);
-modifyvm qq("${qm_GUEST_NAME}" --memory ${qm_GUEST_RAM} --acpi on --boot1 dvd);
-modifyvm qq("${qm_GUEST_NAME}" --ostype Debian);
-modifyvm qq("${qm_GUEST_NAME}" --nic1 bridged --bridgeadapter1 eth0);
-modifyvm qq("${qm_GUEST_NAME}" --nictype1 virtio);
-#       modifyvm "${qm_GUEST_NAME}" --macaddress1 XXXXXXXXXXXX
+createvm qq(--name ${qm_GUEST_NAME} --register);
+modifyvm qq(${qm_GUEST_NAME} --memory ${qm_GUEST_RAM} --acpi on --boot1 dvd);
+modifyvm qq(${qm_GUEST_NAME} --ostype Debian);
+modifyvm qq(${qm_GUEST_NAME} --nic1 bridged --bridgeadapter1 eth0);
+modifyvm qq(${qm_GUEST_NAME} --nictype1 virtio);
+#       modifyvm ${qm_GUEST_NAME} --macaddress1 XXXXXXXXXXXX
 
 ##### DISK #####
 my $SATA="SATA Controller";
@@ -117,11 +117,11 @@ sub storageattach	{ return system ($VBoxManage, storageattach	=> @_) };
 sub unregistervm	{ return system ($VBoxManage, unregistervm	=> @_) };
 
 createhd qq(--filename "${VMs}${qm_GUEST_NAME}/${qm_GUEST_NAME}_sda.vdi" --size 10000);
-storagectl qq("${qm_GUEST_NAME}" --name "$SATA" --add sata);
-storageattach qq("${qm_GUEST_NAME}" --storagectl "$SATA" --port 0 --device 0 --type hdd --medium "${VMs}${qm_GUEST_NAME}/${qm_GUEST_NAME}_sda.vdi");
-storageattach qq("${qm_GUEST_NAME}" --storagectl "$SATA" --port 1 --device 0 --type dvddrive --medium ).quotemeta($local_isos);
+storagectl qq(${qm_GUEST_NAME} --name "$SATA" --add sata);
+storageattach qq(${qm_GUEST_NAME} --storagectl "$SATA" --port 0 --device 0 --type hdd --medium "${VMs}${qm_GUEST_NAME}/${qm_GUEST_NAME}_sda.vdi");
+storageattach qq(${qm_GUEST_NAME}" --storagectl "$SATA" --port 1 --device 0 --type dvddrive --medium ).quotemeta($local_isos);
 
-unregistervm qq("${qm_GUEST_NAME}" --delete);
+unregistervm qq(${qm_GUEST_NAME}" --delete);
 
 
 
