@@ -8,31 +8,40 @@ ops="--delete-excluded --timeout=120 --exclude=*.config/google-chrome/Default/* 
 me=mailserver
 me=`hostname`
 remotehost=nas
+mkdirsuccess=notready
 
 go() {
 	fs=$1
+	d=$(date "+%Y-%m-%d")
 	ifs=$fs
 	ofs=$fs
-	OFS=/backups/"${remotehost}"/${me}/$ofs
+	OFS=/backups/${me}/$ofs
 	if [ rootfs = $ifs ]
 	then
 			ifs=/
 	else
 			ifs=/$ifs/
 	fi
-	d=$(date "+%Y-%m-%d")
 	
-	echo Checking ${remotehost} for "${OFS}" presence. Login 1 of 2.
-	links=`(ssh -n "${remotehost}" ls -1 $OFS ; echo sshec=$? >&2 ) |\
+	echo Checking ${remotehost} for ${OFS}/${d} presence. Login 1 of 2.
+	links=$(ssh -n "${remotehost}"
+
+	(env true || exit 1 ; 
+	env test -d "${OFS}/${d}" ; 
+	env echo sshec=$? >&2 ; 
+	env ls -l "${OFS}"/ >&2 ;
+	env test -d "${OFS}/${d}" || env mkdir -vp "${OFS}/${d}" >&2
+	ls -dl $OFS ) ) |\
 		tr " " "\n" |\
-		grep -v $d |\
+		grep -v ${d} |\
 		sort -nr |\
 		head -n 20 |\
 		awk '{print "--link-dest=__OFS__/"$1"/"}' |\
 		sed -e "s#__OFS__#$OFS#g" |\
-		tr -s /`
+		tee looksie
 	
-	echo rsync $ops $links $ifs "${remotehost}":/media/"${remotehost}"/${me}/$ofs/$d/
+	echo rsync $ops $links $ifs "${remotehost}":"${OFS}/${d}/"
+	rsync $ops $links $ifs "${remotehost}":"${OFS}/${d}/"
 }
 
 while read fs
