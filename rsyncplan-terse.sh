@@ -24,6 +24,9 @@ go() {
 	fi
 	
 	echo Checking ${remotehost} for ${OFS}/${d} presence. Login 1 of 2.
+# FIXME FIXME FIXME FIXME
+# "(..)" below is a subshell running locally, but I want it remotely. GRR.
+
 	links=$(ssh -n "${remotehost}"
 
 	(env true || exit 1 ; 
