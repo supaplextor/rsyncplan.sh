@@ -21,7 +21,7 @@ d=$(date "+%Y-%m-%d")
 ifs=$fs
 ofs=$fs
 OFS=/backups/${me}/$ofs
-if [ rootfs = $ifs ]
+if [ Xrootfs = X$ifs ]
 then
 		ifs=/
 else
