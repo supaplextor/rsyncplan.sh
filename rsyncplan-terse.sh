@@ -7,6 +7,7 @@
 
 ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh \
 	--delete-excluded --timeout=120 \
+	--exclude=/swapfile \
 	--exclude=*.config/google-chrome/Default/* \
 	--delete-after -4iSvPaXAplx"
 
@@ -15,27 +16,24 @@ me=`hostname`
 remotehost=nas
 mkdirsuccess=notready
 
-go() {
-	fs=$1
-	d=$(date "+%Y-%m-%d")
-	ifs=$fs
-	ofs=$fs
-	OFS=/backups/${me}/$ofs
-	if [ rootfs = $ifs ]
-	then
-			ifs=/
-	else
-			ifs=/$ifs/
-	fi
-	
-	echo rsync $ops $links $ifs "${remotehost}":"${OFS}/${d}/"
-	rsync $ops $links $ifs "${remotehost}":"${OFS}/${d}/"
-}
+fs=$1
+d=$(date "+%Y-%m-%d")
+ifs=$fs
+ofs=$fs
+OFS=/backups/${me}/$ofs
+if [ rootfs = $ifs ]
+then
+		ifs=/
+else
+		ifs=/$ifs/
+fi
 
-while read fs
-do
-	echo BEGIN fs=$fs
-	go $fs
-	echo END $fs ec=$?
-done < test-fs
-echo DONE.
+links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??/" 2>/dev/null |\
+	grep -v $d |\
+	sort -nr |\
+	head -n 20 |\
+	awk '{print "--link-dest=__OFS__/"$1"/"}' |\
+	sed -e "s#__OFS__##g" | tr -s /
+	)
+	
+rsync $ops $links $ifs "${remotehost}":"${OFS}/${d}/"
