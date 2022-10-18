@@ -34,10 +34,7 @@ total size is 5,837,767,005,136  speedup is 83,218.63
 
 ## Install rsyncplan
 
-<code><font color="#4E9A06">
-<pre><b>uid1234@host234</b></font>:$ sudo make install</pre>
-</font></code>
-</pre></code>
+<code><font color="#4E9A06"><pre><b>uid1234@host234</b></font>:$ sudo make install</pre></code>
 
 ## rsync --link-dest= strategy
 
