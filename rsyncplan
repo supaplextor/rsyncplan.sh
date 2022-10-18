@@ -34,4 +34,4 @@ links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??/" 2>/dev/null |\
 	)
 fi
 
-echo -- rsync $ops $links $ifs "${remotehost}":"${OFS}/${YYYY_MM_DD}/"
+rsync $ops $links $ifs "${remotehost}":"${OFS}/${YYYY_MM_DD}/"
