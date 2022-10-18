@@ -2,7 +2,16 @@
 # (C) 2014-2022 - supaplextor cloned/exported code to https://github.com/supaplextor/rsyncplan
 # (C) 2014 Scott Edwards - https://code.google.com/p/rsyncplan/
 
-# ops="--delete-excluded --timeout=120 --exclude=*.config/google-chrome/Default/* --delete-after -4iSvPaXAplx --bwlimit=1500"
+RSYNCPLAN_DESINATION_HOST=$1
+if [ x$1 = x ]
+then
+	echo "$0: rsync to remote and collect existing timestamp leaf"
+	echo "  directories to hardlink with, saving space and xfer time/bw."
+	echo ""
+	echo "(C) 2022 GPLv2 https://github.com/supaplextor/rsyncplan"
+	exit 1
+fi
+
 
 ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh \
 	--delete-excluded --timeout=120 \
@@ -10,7 +19,6 @@ ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh \
 	--delete-after -4iSvPaXAplx"
 
 me=`hostname`
-remotehost=nas
 doRemoteLinks=true
 
 TIMESTAMP_YMDHMS_NS=$(date "+%Y-%m-%d_%H%M%S.%N")
@@ -26,8 +34,7 @@ fi
 
 if ${doRemoteLinks} 
 then
-links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
-	grep -v "${TIMESTAMP_YMDHMS_NS}" |\
+links=$(ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
 	sort -nr |\
 	head -n 20 |\
 	awk '{print "--link-dest=__OFS__/"$1"/"}' |\
@@ -35,4 +42,4 @@ links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
 	)
 fi
 
-rsync $ops $links $ifs "${remotehost}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
+rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
