@@ -13,7 +13,8 @@ me=`hostname`
 remotehost=nas
 doRemoteLinks=true
 
-YYYY_MM_DD=$(date "+%Y-%m-%d")
+TIMESTAMP_YMDHMS_NS=$(date "+%Y-%m-%d_%H%M%S.%N")
+
 ifs=/
 OFS=/backups/${me}/rootfs
 
@@ -25,8 +26,8 @@ fi
 
 if ${doRemoteLinks} 
 then
-links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??/" 2>/dev/null |\
-	grep -v "${YYYY_MM_DD}" |\
+links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
+	grep -v "${TIMESTAMP_YMDHMS_NS}" |\
 	sort -nr |\
 	head -n 20 |\
 	awk '{print "--link-dest=__OFS__/"$1"/"}' |\
@@ -34,4 +35,4 @@ links=$(ssh "${remotehost}" ls -1d "${OFS}/????-??-??/" 2>/dev/null |\
 	)
 fi
 
-rsync $ops $links $ifs "${remotehost}":"${OFS}/${YYYY_MM_DD}/"
+rsync $ops $links $ifs "${remotehost}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
