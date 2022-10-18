@@ -60,9 +60,14 @@ of identical content between a workgroup of very similar
 clients.
 
 Consider the following on your rollback.cloud server.
+We'll have to try that... but here goes.
 
 <pre><code># cd /backups
-# mkdir -p /backups/runner22.IEEE802.cloud/rootfs
-# cd runner22.IEEE802.cloud/rootfs
-# ln -s /backups/runners-snapshot.IEEE802.cloud 9999-99-99</code></pre>
+mkdir -p /backups/runner22.IEEE802.cloud/rootfs
+cd runner22.IEEE802.cloud/rootfs
+ln -s /backups/runners-snapshot.IEEE802.cloud 9999-99-99
+ls -l /backups/runner22.IEEE802.cloud/rootfs/
+total 0
+lrwxrwxrwx 1 root root 39 Oct 18 00:43 9999-99-99 -> /backups/runners-snapshot.IEEE802.cloud
+</code></pre>
 
