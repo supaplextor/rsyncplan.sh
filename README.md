@@ -1,6 +1,6 @@
 When crashplan is too expensive, you write your own shell script powered by rsync.
 
-Targed directory structure:
+Target directory structure:
 * /backups
 * /backups/machine-name/rootfs/YYYY-MM-DD_HHMMSS_NS
 
