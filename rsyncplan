@@ -2,6 +2,8 @@
 # (C) 2014-2022 - supaplextor cloned/exported code to https://github.com/supaplextor/rsyncplan
 # (C) 2014 Scott Edwards - https://code.google.com/p/rsyncplan/
 
+set -x
+
 RSYNCPLAN_DESINATION_HOST=$1
 if [ x$1 = x ]
 then
@@ -12,25 +14,14 @@ then
 	exit 1
 fi
 
-
-ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh \
-	--timeout=120 \
-	--exclude=/swapfile \
-	--delete-after -4iSvPaXAplx"
+ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh
+	--timeout=120 --exclude=/swapfile -4iSvPaXAplx"
 
 me=`hostname`
-
-
 ifs=/
 OFS=/backups/${me}/rootfs
-
-# rootfs is an alias for /
-if [ Xrootfs = X$ifs ]
-then
-	ifs=/
-fi
 
 # Note: rsyncplan-exechook.sh will generate a timestamp
 # directory for syncing into
 
-echo rsync $ops $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/"
+rsync $ops $ifs --link-dest="${OFS}/*/" "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/"
