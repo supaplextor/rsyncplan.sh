@@ -2,8 +2,6 @@
 # (C) 2014-2022 - supaplextor cloned/exported code to https://github.com/supaplextor/rsyncplan
 # (C) 2014 Scott Edwards - https://code.google.com/p/rsyncplan/
 
-set -x
-
 RSYNCPLAN_DESINATION_HOST=$1
 if [ x$1 = x ]
 then
