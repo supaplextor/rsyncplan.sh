@@ -2,24 +2,20 @@ When crashplan is too expensive, you write your own shell script powered by rsyn
 
 Target directory structure:
 * /backups
-* /backups/machine-name/rootfs/YYYY-MM-DD_HHMMSS_NS
+* * machine-name/
+* * * rootfs/
+* * * * (YYYY-MM-DD_HHMMSS_XXXXXX exechook smart append)
 
-Server side (say the above nas with sshd, rsync) can use hardlinks with recent <code>yyyy-mm-dd</code> attempts 
-to keep disk space use lower between different snapshots.
+The rsyncplan sends the rootfs (only right now) to the destination
+via ssh and using a smart hook script to prep and decide where the 
+new "appended" directory path lands. It also generates a history
+of the most recent 20 snapshots to reference with hardlinks. This
+is transparent.
 
 ## Sample Invocation
 
-<code># rsyncplan rsyncplan-plus201.rollback.cloud </code>
-
-It will fire off one ssh connection and close to grab most recent
-directory list. 
-
-A second ssh connection is the one doing the rsync
-work. Eventually this *might* be streamlinded in the future 
-by patching rsyncplan-exechook.sh to rewrite the server side logic
-without the client needing two ssh invocations per push.
-
 <code><pre><font color="#E09A06"><b>root@host234</b></font>:# rsyncplan rsyncplan-plus201.rollback.cloud
+(long history omitted)
 &lt;f.st...... var/log/syslog
     182,467,592 100%  148.99MB/s    0:00:01 (xfr#110, to-chk=573/1376624)
 &lt;f..t...... var/log/journal/...../system.journal
@@ -35,6 +31,8 @@ total size is 5,837,767,005,136  speedup is 83,218.63
 ## Install rsyncplan
 
 <code><font color="#4E9A06"><pre><b>uid1234@host234</b></font>:$ sudo make install</pre></code>
+
+# Internals
 
 ## rsync --link-dest= strategy
 

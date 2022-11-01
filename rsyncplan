@@ -14,14 +14,12 @@ fi
 
 
 ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh \
-	--delete-excluded --timeout=120 \
+	--timeout=120 \
 	--exclude=/swapfile \
 	--delete-after -4iSvPaXAplx"
 
 me=`hostname`
-doRemoteLinks=true
 
-TIMESTAMP_YMDHMS_NS=$(date "+%Y-%m-%d_%H%M%S.%N")
 
 ifs=/
 OFS=/backups/${me}/rootfs
@@ -32,14 +30,7 @@ then
 	ifs=/
 fi
 
-if ${doRemoteLinks} 
-then
-links=$(ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
-	sort -nr |\
-	head -n 20 |\
-	awk '{print "--link-dest=__OFS__/"$1"/"}' |\
-	sed -e "s#__OFS__##g" | tr -s /
-	)
-fi
+# Note: rsyncplan-exechook.sh will generate a timestamp
+# directory for syncing into
 
-rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
+echo rsync $ops $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/"
