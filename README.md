@@ -29,7 +29,37 @@ total size is 5,837,767,005,136  speedup is 83,218.63
 </pre></code>
 
 ## Install rsyncplan
-<code><font color="#4E9A06"><b>uid1234@host234</b></font>:$ sudo make install</code>
+<code><pre><font color="#4E9A06"><b>uid1234@host234</b></font>:$ 
+$ git clone https://github.com/supaplextor/rsyncplan.git
+Cloning into 'rsyncplan'...
+remote: Enumerating objects: 106, done.
+remote: Counting objects: 100% (76/76), done.
+remote: Compressing objects: 100% (48/48), done.
+remote: Total 106 (delta 37), reused 59 (delta 25), pack-reused 30
+Receiving objects: 100% (106/106), 25.42 KiB | 839.00 KiB/s, done.
+Resolving deltas: 100% (40/40), done.
+$ cd rsyncplan
+$ ls      
+Makefile  README.md  rsyncplan  rsyncplan-exechook.sh
+$ fakeroot make install
+install -v -d /usr/local/share/rsyncplan/
+install -v -p -t /usr/local/sbin/ rsyncplan*
+install: cannot remove '/usr/local/sbin/rsyncplan': Permission denied
+install: cannot remove '/usr/local/sbin/rsyncplan-exechook.sh': Permission denied
+make: *** [Makefile:4: install] Error 1
+$ rsyncplan
+/usr/local/sbin/rsyncplan: rsync to remote and collect existing timestamp leaf
+  directories to hardlink with, saving space and xfer time/bw.
+
+(C) 2022 GPLv2 https://github.com/supaplextor/rsyncplan
+$ # use /root/.ssh keys wisely
+$ # configure root ssh logins eg /etc/ssh/sshd_config
+$ # -- apropos ssh is your friend
+$ sudo rsyncplan rsyncplan-plus201.rollback.cloud
+
+$ 
+
+</pre></code>
 
 ## rsync --link-dest= strategy
 
