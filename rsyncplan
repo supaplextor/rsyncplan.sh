@@ -2,7 +2,6 @@
 # (C) 2014-2022 - supaplextor cloned/exported code to https://github.com/supaplextor/rsyncplan
 # (C) 2014 Scott Edwards - https://code.google.com/p/rsyncplan/
 
-RSYNCPLAN_DESINATION_HOST=$1
 if [ x$1 = x ]
 then
 	echo "$0: rsync to remote and collect existing timestamp leaf"
@@ -14,9 +13,9 @@ fi
 
 
 ops="--rsync-path=/usr/local/sbin/rsyncplan-exechook.sh \
-	--delete-excluded --timeout=120 \
+	--timeout=1200 \
 	--exclude=/swapfile \
-	--delete-after -4iSvPaXAplx"
+	-iSaXAlx"
 
 me=`hostname`
 doRemoteLinks=true
@@ -25,12 +24,7 @@ TIMESTAMP_YMDHMS_NS=$(date "+%Y-%m-%d_%H%M%S.%N")
 
 ifs=/
 OFS=/backups/${me}/rootfs
-
-# rootfs is an alias for /
-if [ Xrootfs = X$ifs ]
-then
-	ifs=/
-fi
+RSYNCPLAN_DESINATION_HOST=$1
 
 if ${doRemoteLinks} 
 then
