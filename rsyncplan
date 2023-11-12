@@ -21,10 +21,11 @@ me=`hostname`
 doRemoteLinks=true
 
 TIMESTAMP_YMDHMS_NS=$(date "+%Y-%m-%d_%H%M%S.%N")
-
 ifs=/
 OFS=/backups/${me}/rootfs
 RSYNCPLAN_DESINATION_HOST=$1
+
+# rsyncplan -p /home -l home -h rsyncplan-dump
 
 if ${doRemoteLinks} 
 then
