@@ -27,6 +27,7 @@ RSYNCPLAN_DESINATION_HOST=$1
 
 # rsyncplan -p /home -l home -h rsyncplan-dump
 
+
 if ${doRemoteLinks} 
 then
 links=$(ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
