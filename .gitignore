@@ -1,2 +1,3 @@
-rsyncplan-exechook/go.mod rsyncplan/go.mod
 rsyncplan-exechook/rsyncplan-exechook
+rsyncplan/rsyncplan
+*/go.mod
