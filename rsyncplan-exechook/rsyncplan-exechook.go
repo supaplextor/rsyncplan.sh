@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 func __LINEETC__() string {
@@ -33,6 +34,7 @@ func main() {
 	log.SetOutput(logwriter)
 
 	if len(argsWithoutProg) == 0 {
+		// Log a warning message
 		log.Fatalf("%s%s", __LINEETC__(), "Failure to provide target directory (is rsync running this?)")
 		os.Exit(1)
 	}
@@ -54,8 +56,7 @@ func main() {
 	err = cmd.Run()
 	// stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Printf("rsync")
-		log.Fatalf("%s %s", __LINEETC__(), err.Error())
+		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
 	}
 }
