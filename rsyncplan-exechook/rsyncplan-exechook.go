@@ -1,36 +1,47 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"log/syslog"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
+
+func __LINEETC__() string {
+	_, file, line, ok := runtime.Caller(1) // Get info about the caller of this function
+	if !ok {
+		file = "unknown"
+		line = 0
+	}
+	return fmt.Sprintf("%s:%d ", file, line)
+}
 
 func main() {
 	argsWithoutProg := os.Args[1:]
 	args := os.Args
-	sysLog, err := syslog.Dial("tcp", "localhost:514", syslog.LOG_WARNING|syslog.LOG_DAEMON, "rsyncplan-exechook")
+	lastArg := args[len(args)-1]
+
+	// Configure the standard logger to write to the syslog.
+	// We set the priority to LOG_NOTICE and the tag to "mygoapp".
+	logwriter, err := syslog.New(syslog.LOG_NOTICE|syslog.LOG_DAEMON, os.Args[0])
 	if err != nil {
-		sysLog.Warning(err.Error())
-		log.Fatal(err)
+		log.Fatalf("%s%s %s", __LINEETC__(), "Failed to connect to syslog: ", err.Error())
 	}
-	defer sysLog.Close()
+	log.SetOutput(logwriter)
 
 	if len(argsWithoutProg) == 0 {
 		// Log a warning message
-		sysLog.Warning("Failure to provide target directory (is rsync running this?)")
-		log.Fatal("Failure to provide target directory (is rsync running this?)")
+		log.Fatalf("%s%s", __LINEETC__(), "Failure to provide target directory (is rsync running this?)")
 		os.Exit(1)
 	}
 
-	lastArg := args[len(args)-1]
-	sysLog.Warning("MkdirAll(" + lastArg + ", 0750)")
+	log.Printf("%s %s %s %s", __LINEETC__(), "MkdirAll(", lastArg, ", 0750)")
 	err = os.MkdirAll(lastArg, 0750)
 	if err != nil {
-		sysLog.Warning(err.Error())
-		log.Fatal(err)
+		log.Fatalf("%s %s", __LINEETC__(), err.Error())
 		os.Exit(2)
 	}
 	// call rsync now its date time stamped directory
@@ -39,8 +50,7 @@ func main() {
 	cmd.Stdout = &out
 	err = cmd.Run()
 	if err != nil {
-		sysLog.Warning(err.Error())
-		log.Fatal(err)
+		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
 	}
 }
