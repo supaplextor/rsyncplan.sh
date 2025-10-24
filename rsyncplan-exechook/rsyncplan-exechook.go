@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 )
 
 func __LINEETC__() string {
@@ -29,11 +28,11 @@ func main() {
 	logwriter, err := syslog.New(syslog.LOG_NOTICE|syslog.LOG_DAEMON, os.Args[0])
 	if err != nil {
 		log.Fatalf("%s%s %s", __LINEETC__(), "Failed to connect to syslog: ", err.Error())
+		os.Exit(3)
 	}
 	log.SetOutput(logwriter)
 
 	if len(argsWithoutProg) == 0 {
-		// Log a warning message
 		log.Fatalf("%s%s", __LINEETC__(), "Failure to provide target directory (is rsync running this?)")
 		os.Exit(1)
 	}
@@ -44,13 +43,19 @@ func main() {
 		log.Fatalf("%s %s", __LINEETC__(), err.Error())
 		os.Exit(2)
 	}
+
 	// call rsync now its date time stamped directory
+	log.Println("Calling rsync", argsWithoutProg)
 	cmd := exec.Command("rsync", argsWithoutProg...)
-	var out strings.Builder
-	cmd.Stdout = &out
+	//	cmd := exec.Command("bash", "-c", "echo 'Hello from bash'; sleep 1; echo 'Done'")
+	cmd.Stdout = os.Stdout // Direct stdout to the program's stdout
+	cmd.Stderr = os.Stderr // Direct stderr to the program's stderr
+
 	err = cmd.Run()
+	// stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
+		log.Printf("rsync")
+		log.Fatalf("%s %s", __LINEETC__(), err.Error())
 		os.Exit(255)
 	}
 }
