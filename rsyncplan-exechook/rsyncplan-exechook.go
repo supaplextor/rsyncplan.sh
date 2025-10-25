@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 )
 
 func __LINEETC__() string {
@@ -52,6 +51,7 @@ func main() {
 	//	cmd := exec.Command("bash", "-c", "echo 'Hello from bash'; sleep 1; echo 'Done'")
 	cmd.Stdout = os.Stdout // Direct stdout to the program's stdout
 	cmd.Stderr = os.Stderr // Direct stderr to the program's stderr
+	cmd.Stdin = os.Stdin   // maybe?
 
 	err = cmd.Run()
 	// stdoutStderr, err := cmd.CombinedOutput()

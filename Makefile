@@ -12,12 +12,12 @@ init:
 	go mod tidy || true
 	go mod download
 
-	cd ../rsyncplan-exechook && go mod init ${APP}/v2
+	cd ../rsyncplan-exechook && go mod init ${APP}-exechook/v2
 	go mod tidy || true
 	go mod download
 build-one:
-	go build -o ${RELEASEDIR}rsyncplan rsyncplan
-	go build -o ${RELEASEDIR}rsyncplan-exechook rsyncplan-exechook
+	go build -o ${RELEASEDIR}rsyncplan-${GOOS}-${GOARCH} rsyncplan
+	go build -o ${RELEASEDIR}rsyncplan-exechook-${GOOS}-${GOARCH} rsyncplan-exechook
 
 
 #	make release-most || echo release-most ${GOOS}
