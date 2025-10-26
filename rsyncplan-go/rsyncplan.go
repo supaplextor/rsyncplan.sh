@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"log/syslog"
 	"os"
 	"os/exec"
 	"runtime"
-	"time"
+	"strings"
 )
 
 func __LINEETC__() string {
@@ -38,21 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.Fatalf("Error getting my hostname: %v", err)
-		os.Exit(4)
-	}
-
-	// Get the current time
-	t := time.Now()
-
-	// Format a custom date and time string
-	customFormat := "2006-01-02_150405.98765"
-	log.Printf("Custom format: %s", t.Format(customFormat))
-
-	OFS := "/backups/" + hostname + "/rootfs/"
-
+	//	lastArg
 	//	# rsyncplan -p /home -l home -h rsyncplan-dump
 	//links=$(
 	// ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
@@ -63,30 +50,48 @@ func main() {
 	//)
 	//
 
+	// --link-dest=
+
 	// rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
 
 	log.Println("Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
 	cmd := exec.Command("ssh", RSYNCPLAN_DESTINATION_HOST,
 		"ls -1d "+OFS+"????-??-??*/ | sort -nr | head -n 20")
 
-	/*
-		stdin, err := cmd.StdinPipe()
-		if err != nil {
-			log.Fatalf("%s %s %s %s", __LINEETC__(), RSYNCPLAN_DESTINATION_HOST,
-				"ls -1d "+OFS+"????-??-??* / ... ", err.Error())
-			os.Exit(255)
-		}
-	*/
-
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Fatalf("%s %s %s", __LINEETC__(), "echo", stdout)
-		os.Exit(255)
+		log.Fatalf("Error creating StdoutPipe: %s", err.Error())
+		os.Exit(5)
+	}
+	defer stdout.Close() // Close the pipe when done
+
+	if err := cmd.Start(); err != nil {
+		log.Fatalf("Error starting command: %s", err.Error())
+		os.Exit(6)
+	}
+
+	// Read all data from the io.ReadCloser into a byte slice
+	outputBytes, err := io.ReadAll(stdout)
+	if err != nil {
+		log.Fatalf("Error reading stdout: %s", err.Error())
+		os.Exit(7)
+	}
+
+	// Convert the byte slice to a string
+	outputString := string(outputBytes)
+	ld := strings.Split(outputString, "\n")
+
+	// Now you can safely use outputString with strings.Split
+	parts := strings.Split(strings.TrimSpace(outputString), " ") // TrimSpace to remove potential newline
+	fmt.Println(parts)
+
+	if err := cmd.Wait(); err != nil {
+		fmt.Println("Error waiting for command:", err)
 	}
 
 	ops := "--rsync-path=/usr/local/sbin/rsyncplan-exechook --timeout=1200 --exclude=/swapfile -iSaXAlx"
 	rootfs := "/"
-	cmd = exec.Command("echo", "rsync", ops, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS)
+	cmd = exec.Command("echo", "rsync", ops, ld, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS)
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
