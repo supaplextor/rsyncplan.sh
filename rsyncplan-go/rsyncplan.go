@@ -51,7 +51,6 @@ func main() {
 	//)
 	//
 
-	// --link-dest=
 	// Get the current time.
 	now := time.Now()
 
@@ -60,18 +59,18 @@ func main() {
 	// 04 is the minute
 	// 05 is the second
 	// .000000000 represents nanoseconds
-	layout := "2025-09-10_15:04:05.000000000"
+	layout := "2006-01-02_150405.000000000"
 
 	// Format the current time using the layout.
 	formattedTime := now.Format(layout)
 	if err != nil {
-		log.Fatalln("Cannot format timestamp %s", err.Error())
+		log.Fatalf("Cannot format timestamp %s", err.Error())
 		os.Exit(9)
 	}
 
 	me, err := os.Hostname()
 	if err != nil {
-		log.Fatalln("Cannot find hostname %s", err.Error())
+		log.Fatalf("Cannot find hostname %s", err.Error())
 		os.Exit(10)
 	}
 
@@ -106,14 +105,28 @@ func main() {
 	}
 	// Convert the byte slice to a string
 	outputString := string(outputBytes)
+
 	ld := strings.Split(outputString, "\n")
+	// --link-dest=
 
 	ops := "--rsync-path=/usr/local/sbin/rsyncplan-exechook --timeout=1200 --exclude=/swapfile -iSaXAlx"
+	opsArray := strings.Split(ops, " ")
 	rootfs := "/" // client side; TODO/FIXME/ labels and other filesystems.
 
 	log.Printf("Target destination directory calculated as: %s", OFS+formattedTime+"/")
-	allopts := []string{"rsync", ops, ld, rootfs, RSYNCPLAN_DESTINATION_HOST + ":" + OFS + formattedTime + "/"}
-	cmd = exec.Command("echo", allopts)
+	allopts := []string{"rsync"}
+	log.Printf("exec: %v", allopts)
+
+	allopts = append(allopts, opsArray...)
+	log.Printf("opsArray... %v", allopts)
+
+	allopts = append(allopts, ld...)
+	log.Printf("ld... %v (all the --link-dest= targets)", allopts)
+
+	allopts = append(allopts, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS+formattedTime+"/")
+	log.Printf("finally %v", allopts)
+
+	cmd = exec.Command("echo", allopts...)
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
