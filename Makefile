@@ -16,7 +16,11 @@ init:
 	go mod tidy || true
 	go mod download
 build-one:
+<<<<<<< HEAD
 	go build -o ${RELEASEDIR}rsyncplan-${GOOS}-${GOARCH} rsyncplan-go
+=======
+	go build -o ${RELEASEDIR}rsyncplan-${GOOS}-${GOARCH} rsyncplan
+>>>>>>> 9d8b243a8198735bd1df496ec39cc30ae8e2fcaa
 	go build -o ${RELEASEDIR}rsyncplan-exechook-${GOOS}-${GOARCH} rsyncplan-exechook
 
 

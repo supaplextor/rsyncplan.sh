@@ -1,8 +1,8 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"log/syslog"
 	"os"
@@ -41,6 +41,21 @@ func main() {
 	}
 
 	//	lastArg
+	me, err := os.Hostname()
+	if err != nil {
+		log.Fatalf("%s Cannot find hostname %s", __LINEETC__(), err.Error())
+		os.Exit(10)
+	} else {
+		log.Printf("%s I am %s", __LINEETC__(), me)
+	}
+
+	// Get the current time
+	t := time.Now()
+
+	// Format a custom date and time string
+	customFormat := "2006-01-02_150405.98765"
+	log.Printf("%s Custom format: %s", __LINEETC__(), t.Format(customFormat))
+
 	//	# rsyncplan -p /home -l home -h rsyncplan-dump
 	//links=$(
 	// ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
@@ -68,44 +83,24 @@ func main() {
 		os.Exit(9)
 	}
 
-	me, err := os.Hostname()
-	if err != nil {
-		log.Fatalf("Cannot find hostname %s", err.Error())
-		os.Exit(10)
-	}
-
-	OFS := "/backups/" + me + "/rootfs/"
 	// rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
-
+	OFS := "/backups/" + me + "/rootfs/"
 	log.Println("Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
 	cmd := exec.Command("ssh", RSYNCPLAN_DESTINATION_HOST,
 		"ls -1d "+OFS+"????-??-??*/ | sort -nr | head -n 20")
 
-	stdout, err := cmd.StdoutPipe()
+	// Create a bytes.Buffer to capture the stdout
+	var stdoutBuffer bytes.Buffer
+	cmd.Stdout = &stdoutBuffer
+
+	// Run the command
+	err = cmd.Run()
 	if err != nil {
-		log.Fatalf("Error creating StdoutPipe: %s", err.Error())
-		os.Exit(5)
-	}
-	defer stdout.Close() // Close the pipe when done
-
-	if err := cmd.Start(); err != nil {
-		log.Fatalf("Error starting command: %s", err.Error())
-		os.Exit(6)
+		log.Fatalf("Command execution failed: %v", err)
 	}
 
-	// Read all data from the io.ReadCloser into a byte slice
-	outputBytes, err := io.ReadAll(stdout)
-	if err != nil {
-		log.Fatalf("Error reading stdout: %s", err.Error())
-		os.Exit(7)
-	}
-	if err := cmd.Wait(); err != nil {
-		log.Fatalf("Error waiting for command: %s", err.Error())
-		os.Exit(8)
-	}
-	// Convert the byte slice to a string
-	outputString := string(outputBytes)
-
+	// Retrieve the captured stdout as a string
+	outputString := stdoutBuffer.String()
 	ld := strings.Split(outputString, "\n")
 	// --link-dest=
 
@@ -115,21 +110,21 @@ func main() {
 
 	log.Printf("Target destination directory calculated as: %s", OFS+formattedTime+"/")
 	allopts := []string{"rsync"}
-	log.Printf("exec: %v", allopts)
+	log.Printf("%s exec: %v", __LINEETC__(), allopts)
 
 	allopts = append(allopts, opsArray...)
-	log.Printf("opsArray... %v", allopts)
+	log.Printf("%s opsArray... %v", __LINEETC__(), opsArray)
 
 	allopts = append(allopts, ld...)
-	log.Printf("ld... %v (all the --link-dest= targets)", allopts)
+	log.Printf("%s ld... %v (all the --link-dest= targets)", __LINEETC__(), ld)
 
 	allopts = append(allopts, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS+formattedTime+"/")
-	log.Printf("finally %v", allopts)
+	log.Printf("%s finally %v", __LINEETC__(), allopts)
 
 	cmd = exec.Command("echo", allopts...)
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
 	}
-	log.Printf("%s", cmd.Stdout)
+	log.Printf("%s %s", __LINEETC__(), cmd.Stdout)
 }
