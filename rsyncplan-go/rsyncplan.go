@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 )
 
 func __LINEETC__() string {
@@ -51,7 +52,30 @@ func main() {
 	//
 
 	// --link-dest=
+	// Get the current time.
+	now := time.Now()
 
+	// The reference layout for HHMMSS.ns is 15:04:05.000000000
+	// 15 is the hour (3PM)
+	// 04 is the minute
+	// 05 is the second
+	// .000000000 represents nanoseconds
+	layout := "2025-09-10_15:04:05.000000000"
+
+	// Format the current time using the layout.
+	formattedTime := now.Format(layout)
+	if err != nil {
+		log.Fatalln("Cannot format timestamp %s", err.Error())
+		os.Exit(9)
+	}
+
+	me, err := os.Hostname()
+	if err != nil {
+		log.Fatalln("Cannot find hostname %s", err.Error())
+		os.Exit(10)
+	}
+
+	OFS := "/backups/" + me + "/rootfs/"
 	// rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
 
 	log.Println("Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
@@ -76,22 +100,20 @@ func main() {
 		log.Fatalf("Error reading stdout: %s", err.Error())
 		os.Exit(7)
 	}
-
+	if err := cmd.Wait(); err != nil {
+		log.Fatalf("Error waiting for command: %s", err.Error())
+		os.Exit(8)
+	}
 	// Convert the byte slice to a string
 	outputString := string(outputBytes)
 	ld := strings.Split(outputString, "\n")
 
-	// Now you can safely use outputString with strings.Split
-	parts := strings.Split(strings.TrimSpace(outputString), " ") // TrimSpace to remove potential newline
-	fmt.Println(parts)
-
-	if err := cmd.Wait(); err != nil {
-		fmt.Println("Error waiting for command:", err)
-	}
-
 	ops := "--rsync-path=/usr/local/sbin/rsyncplan-exechook --timeout=1200 --exclude=/swapfile -iSaXAlx"
-	rootfs := "/"
-	cmd = exec.Command("echo", "rsync", ops, ld, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS)
+	rootfs := "/" // client side; TODO/FIXME/ labels and other filesystems.
+
+	log.Printf("Target destination directory calculated as: %s", OFS+formattedTime+"/")
+	allopts := []string{"rsync", ops, ld, rootfs, RSYNCPLAN_DESTINATION_HOST + ":" + OFS + formattedTime + "/"}
+	cmd = exec.Command("echo", allopts)
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
