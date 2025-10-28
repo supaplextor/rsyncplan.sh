@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"log/syslog"
@@ -53,27 +52,9 @@ func main() {
 	t := time.Now()
 
 	// Format a custom date and time string
-	customFormat := "2006-01-02_150405.98765"
+	customFormat := "2006-01-02_150405.000000000"
 	log.Printf("%s Custom format: %s", __LINEETC__(), t.Format(customFormat))
-
-	//	# rsyncplan -p /home -l home -h rsyncplan-dump
-	//links=$(
-	// ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
-	//sort -nr |\
-	//head -n 20 |\
-	//awk '{print "--link-dest=__OFS__/"$1"/"}' |\
-	//sed -e "s#__OFS__##g" | tr -s /
-	//)
-	//
-
-	// Get the current time.
 	now := time.Now()
-
-	// The reference layout for HHMMSS.ns is 15:04:05.000000000
-	// 15 is the hour (3PM)
-	// 04 is the minute
-	// 05 is the second
-	// .000000000 represents nanoseconds
 	layout := "2006-01-02_150405.000000000"
 
 	// Format the current time using the layout.
@@ -83,25 +64,19 @@ func main() {
 		os.Exit(9)
 	}
 
-	// rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
 	OFS := "/backups/" + me + "/rootfs/"
 	log.Println("Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
 	cmd := exec.Command("ssh", RSYNCPLAN_DESTINATION_HOST,
 		"ls -1d "+OFS+"????-??-??*/ | sort -nr | head -n 20")
 
-	// Create a bytes.Buffer to capture the stdout
-	var stdoutBuffer bytes.Buffer
-	cmd.Stdout = &stdoutBuffer
-
-	// Run the command
-	err = cmd.Run()
+	// Capture the output
+	outputString, err := cmd.Output()
 	if err != nil {
-		log.Fatalf("Command execution failed: %v", err)
+		log.Fatalf("Command failed: %v", err)
 	}
 
-	// Retrieve the captured stdout as a string
-	outputString := stdoutBuffer.String()
-	ld := strings.Split(outputString, "\n")
+	log.Printf("%s from remote stdout: %s", __LINEETC__(), outputString)
+	ld := strings.Split(string(outputString), "\n")
 	// --link-dest=
 
 	ops := "--rsync-path=/usr/local/sbin/rsyncplan-exechook --timeout=1200 --exclude=/swapfile -iSaXAlx"
@@ -109,22 +84,32 @@ func main() {
 	rootfs := "/" // client side; TODO/FIXME/ labels and other filesystems.
 
 	log.Printf("Target destination directory calculated as: %s", OFS+formattedTime+"/")
-	allopts := []string{"rsync"}
-	log.Printf("%s exec: %v", __LINEETC__(), allopts)
+	allopts := []string{}
+	// log.Printf("%s exec: %v", __LINEETC__(), allopts)
 
 	allopts = append(allopts, opsArray...)
 	log.Printf("%s opsArray... %v", __LINEETC__(), opsArray)
 
-	allopts = append(allopts, ld...)
-	log.Printf("%s ld... %v (all the --link-dest= targets)", __LINEETC__(), ld)
+	for _, v := range ld {
+		if len(v) != 0 {
+			log.Printf("%s appending %s", __LINEETC__(), "--link-dest="+v)
+			allopts = append(allopts, "--link-dest="+v)
+		}
+	}
+
+	log.Printf("%s ld... %v (all the --link-dest= targets)", __LINEETC__(), allopts)
 
 	allopts = append(allopts, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS+formattedTime+"/")
 	log.Printf("%s finally %v", __LINEETC__(), allopts)
 
-	cmd = exec.Command("echo", allopts...)
+	cmd = exec.Command("rsync", allopts...)
+	cmd.Stdout = os.Stdout // Direct stdout to the program's stdout
+	cmd.Stderr = os.Stderr // Direct stderr to the program's stderr
+	cmd.Stdin = os.Stdin   // maybe?
+	err = cmd.Run()
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
 	}
-	log.Printf("%s %s", __LINEETC__(), cmd.Stdout)
+	// log.Printf("%s stdout was %s", __LINEETC__(), cmd.Stdout)
 }
