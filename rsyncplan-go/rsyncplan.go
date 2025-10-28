@@ -92,7 +92,7 @@ func main() {
 
 	for _, v := range ld {
 		if len(v) != 0 {
-			log.Printf("%s appending %s", __LINEETC__(), "--link-dest="+v)
+			log.Printf("%s appending %s (len(v)==%d", __LINEETC__(), "--link-dest="+v, len(v))
 			allopts = append(allopts, "--link-dest="+v)
 		}
 	}
