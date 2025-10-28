@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"log/syslog"
 	"os"
@@ -41,82 +40,76 @@ func main() {
 	}
 
 	//	lastArg
-	//	# rsyncplan -p /home -l home -h rsyncplan-dump
-	//links=$(
-	// ssh "${RSYNCPLAN_DESINATION_HOST}" ls -1d "${OFS}/????-??-??*/" 2>/dev/null |\
-	//sort -nr |\
-	//head -n 20 |\
-	//awk '{print "--link-dest=__OFS__/"$1"/"}' |\
-	//sed -e "s#__OFS__##g" | tr -s /
-	//)
-	//
+	me, err := os.Hostname()
+	if err != nil {
+		log.Fatalf("%s Cannot find hostname %s", __LINEETC__(), err.Error())
+		os.Exit(10)
+	} else {
+		log.Printf("%s I am %s", __LINEETC__(), me)
+	}
 
-	// --link-dest=
-	// Get the current time.
+	// Get the current time
+	t := time.Now()
+
+	// Format a custom date and time string
+	customFormat := "2006-01-02_150405.000000000"
+	log.Printf("%s Custom format: %s", __LINEETC__(), t.Format(customFormat))
 	now := time.Now()
-
-	// The reference layout for HHMMSS.ns is 15:04:05.000000000
-	// 15 is the hour (3PM)
-	// 04 is the minute
-	// 05 is the second
-	// .000000000 represents nanoseconds
-	layout := "2025-09-10_15:04:05.000000000"
+	layout := "2006-01-02_150405.000000000"
 
 	// Format the current time using the layout.
 	formattedTime := now.Format(layout)
 	if err != nil {
-		log.Fatalln("Cannot format timestamp %s", err.Error())
+		log.Fatalf("Cannot format timestamp %s", err.Error())
 		os.Exit(9)
 	}
 
-	me, err := os.Hostname()
-	if err != nil {
-		log.Fatalln("Cannot find hostname %s", err.Error())
-		os.Exit(10)
-	}
-
 	OFS := "/backups/" + me + "/rootfs/"
-	// rsync $ops $links $ifs "${RSYNCPLAN_DESINATION_HOST}":"${OFS}/${TIMESTAMP_YMDHMS_NS}/"
-
 	log.Println("Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
 	cmd := exec.Command("ssh", RSYNCPLAN_DESTINATION_HOST,
 		"ls -1d "+OFS+"????-??-??*/ | sort -nr | head -n 20")
 
-	stdout, err := cmd.StdoutPipe()
+	// Capture the output
+	outputString, err := cmd.Output()
 	if err != nil {
-		log.Fatalf("Error creating StdoutPipe: %s", err.Error())
-		os.Exit(5)
-	}
-	defer stdout.Close() // Close the pipe when done
-
-	if err := cmd.Start(); err != nil {
-		log.Fatalf("Error starting command: %s", err.Error())
-		os.Exit(6)
+		log.Fatalf("Command failed: %v", err)
 	}
 
-	// Read all data from the io.ReadCloser into a byte slice
-	outputBytes, err := io.ReadAll(stdout)
-	if err != nil {
-		log.Fatalf("Error reading stdout: %s", err.Error())
-		os.Exit(7)
-	}
-	if err := cmd.Wait(); err != nil {
-		log.Fatalf("Error waiting for command: %s", err.Error())
-		os.Exit(8)
-	}
-	// Convert the byte slice to a string
-	outputString := string(outputBytes)
-	ld := strings.Split(outputString, "\n")
+	log.Printf("%s from remote stdout: %s", __LINEETC__(), outputString)
+	ld := strings.Split(string(outputString), "\n")
+	// --link-dest=
 
 	ops := "--rsync-path=/usr/local/sbin/rsyncplan-exechook --timeout=1200 --exclude=/swapfile -iSaXAlx"
+	opsArray := strings.Split(ops, " ")
 	rootfs := "/" // client side; TODO/FIXME/ labels and other filesystems.
 
 	log.Printf("Target destination directory calculated as: %s", OFS+formattedTime+"/")
-	allopts := []string{"rsync", ops, ld, rootfs, RSYNCPLAN_DESTINATION_HOST + ":" + OFS + formattedTime + "/"}
-	cmd = exec.Command("echo", allopts)
+	allopts := []string{}
+	// log.Printf("%s exec: %v", __LINEETC__(), allopts)
+
+	allopts = append(allopts, opsArray...)
+	log.Printf("%s opsArray... %v", __LINEETC__(), opsArray)
+
+	for _, v := range ld {
+		if len(v) != 0 {
+			log.Printf("%s appending %s", __LINEETC__(), "--link-dest="+v)
+			allopts = append(allopts, "--link-dest="+v)
+		}
+	}
+
+	log.Printf("%s ld... %v (all the --link-dest= targets)", __LINEETC__(), allopts)
+
+	allopts = append(allopts, rootfs, RSYNCPLAN_DESTINATION_HOST+":"+OFS+formattedTime+"/")
+	log.Printf("%s finally %v", __LINEETC__(), allopts)
+
+	cmd = exec.Command("rsync", allopts...)
+	cmd.Stdout = os.Stdout // Direct stdout to the program's stdout
+	cmd.Stderr = os.Stderr // Direct stderr to the program's stderr
+	cmd.Stdin = os.Stdin   // maybe?
+	err = cmd.Run()
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
 		os.Exit(255)
 	}
-	log.Printf("%s", cmd.Stdout)
+	// log.Printf("%s stdout was %s", __LINEETC__(), cmd.Stdout)
 }
