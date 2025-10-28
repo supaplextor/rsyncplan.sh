@@ -8,6 +8,7 @@ all: build
 build:
 	make build-one GOOS=linux GOARCH=amd64
 init:
+	false fixme
 	cd rsyncplan && go mod init ${APP}/v2
 	go mod tidy || true
 	go mod download
@@ -16,62 +17,16 @@ init:
 	go mod tidy || true
 	go mod download
 build-one:
-<<<<<<< HEAD
-	go build -o ${RELEASEDIR}rsyncplan-${GOOS}-${GOARCH} rsyncplan-go
-=======
-	go build -o ${RELEASEDIR}rsyncplan-${GOOS}-${GOARCH} rsyncplan
->>>>>>> 9d8b243a8198735bd1df496ec39cc30ae8e2fcaa
-	go build -o ${RELEASEDIR}rsyncplan-exechook-${GOOS}-${GOARCH} rsyncplan-exechook
-
-
-#	make release-most || echo release-most ${GOOS}
-#release-most:
-#	tar -C ${RELEASEDIR} -cvf ${RELEASEDIR}${APP}-${GOOS}-${GOARCH}.tar.bz2 ${APP}-${GOOS}-${GOARCH} ../README.md
-#release-windows:
-#	zip -j ${RELEASEDIR}${APP}-${GOOS}-${GOARCH}.zip ${RELEASEDIR}${APP}-${GOOS}-${GOARCH}${dotEXE} README.md
-build-release: build
-	make build-one GOOS=linux GOARCH=386
-#	make build-one GOOS=windows GOARCH=386 dotEXE=.exe
-#	make build-one GOOS=windows GOARCH=amd64 dotEXE=.exe
-build-more:
-	make build-one GOOS=darwin GOARCH=amd64 || true
-#	make build-one GOOS=android GOARCH=arm || true
-	make build-one GOOS=darwin GOARCH=386 || true
-	make build-one GOOS=darwin GOARCH=arm || true
-	make build-one GOOS=darwin GOARCH=arm64 || true
-	make build-one GOOS=plan9 GOARCH=386 || true
-	make build-one GOOS=plan9 GOARCH=amd64 || true
-	make build-one GOOS=solaris GOARCH=amd64 || true
-	make build-one GOOS=dragonfly GOARCH=amd64 || true
-	make build-one GOOS=freebsd GOARCH=386 || true
-	make build-one GOOS=freebsd GOARCH=amd64 || true
-	make build-one GOOS=freebsd GOARCH=arm || true
-	make build-one GOOS=linux GOARCH=arm || true
-	make build-one GOOS=linux GOARCH=arm64 || true
-	make build-one GOOS=linux GOARCH=ppc64 || true
-	make build-one GOOS=linux GOARCH=ppc64le || true
-	make build-one GOOS=linux GOARCH=mips || true
-	make build-one GOOS=linux GOARCH=mipsle || true
-	make build-one GOOS=linux GOARCH=mips64 || true
-	make build-one GOOS=linux GOARCH=mips64le || true
-	make build-one GOOS=netbsd GOARCH=386 || true
-	make build-one GOOS=netbsd GOARCH=amd64 || true
-	make build-one GOOS=netbsd GOARCH=arm || true
-	make build-one GOOS=openbsd GOARCH=386 || true
-	make build-one GOOS=openbsd GOARCH=amd64 || true
-	make build-one GOOS=openbsd GOARCH=arm || true
+	cd rsyncplan-go && go build 
+	cd rsyncplan-exechook && go build
 clean:
-	rm -f ${RELEASEDIR}${APP}-* go.sum go.mod
+	rm -f ${RELEASEDIR}${APP}* */go.sum */go.mod
 	go clean
-run:
-	sleep 1
-	./${RELEASEDIR}${APP}-linux-amd64
-
 install:
 	install -v -d /usr/local/share/rsyncplan/
 	install -m 0644 -v -p -t /usr/local/share/rsyncplan/ README.md
 	install -m 0644 -v -p -t /etc/sudoers.d/ rsyncplan-sudoers
-	install -v -p -t /usr/local/sbin/ rsyncplan rsyncplan-exechook.sh
+	install -v -p -t /usr/local/sbin/ ${RELEASEDIR}rsyncplan ${RELEASEDIR}rsyncplan-exechook
 uninstall:
 	rm -v -f /usr/local/sbin/rsyncplan* /usr/local/share/rsyncplan/README.md /etc/sudoers.d/rsyncplan-sudoers
 	rmdir -v /usr/local/share/rsyncplan/
