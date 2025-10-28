@@ -44,9 +44,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("%s Cannot find hostname %s", __LINEETC__(), err.Error())
 		os.Exit(10)
-	} else {
-		log.Printf("%s I am %s", __LINEETC__(), me)
 	}
+	log.Printf("%s I am %s", __LINEETC__(), me)
 
 	// Get the current time
 	t := time.Now()
