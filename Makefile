@@ -21,9 +21,9 @@ build-one:
 	cd rsyncplan-go && go build 
 	cd rsyncplan-exechook && go build
 clean:
-	false fixme
 	cd rsyncplan-go && go clean
 	cd rsyncplan-exechook && go clean
+	false fixme
 	rm -f ${RELEASEDIR}${APP} ${RELEASEDIR}${APP}-exechook */go.sum */go.mod
 install:
 	install -v -d /usr/local/share/rsyncplan/
