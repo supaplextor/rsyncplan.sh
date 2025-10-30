@@ -7,6 +7,8 @@ RELEASEDIR=release/
 all: build
 build:
 	make build-one GOOS=linux GOARCH=amd64
+release:
+	test -d release || mkdir release
 	make       tgz GOOS=linux GOARCH=amd64
 init:
 	false fixme
