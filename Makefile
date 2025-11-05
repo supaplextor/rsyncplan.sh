@@ -26,6 +26,7 @@ build-one:
 release-all:
 #	make build-one GOOS=android GOARCH=arm || true
 	make build-one GOOS=darwin GOARCH=386 || true	
+	make build-one GOOS=darwin GOARCH=amd64 || true
 	make build-one GOOS=darwin GOARCH=arm || true
 	make build-one GOOS=darwin GOARCH=arm64 || true
 	make build-one GOOS=plan9 GOARCH=386 || true
