@@ -15,9 +15,9 @@ build-one:
 release-all:
 	make build-one tgz GOOS=linux GOARCH=amd64 || true
 #	make build-one tgz GOOS=android GOARCH=arm || true
-	make build-one tgz GOOS=darwin GOARCH=386 || true	
+#	make build-one tgz GOOS=darwin GOARCH=386 || true	
 	make build-one tgz GOOS=darwin GOARCH=amd64 || true
-	make build-one tgz GOOS=darwin GOARCH=arm || true
+#	make build-one tgz GOOS=darwin GOARCH=arm || true
 	make build-one tgz GOOS=darwin GOARCH=arm64 || true
 	make build-one tgz GOOS=plan9 GOARCH=386 || true
 	make build-one tgz GOOS=plan9 GOARCH=amd64 || true
