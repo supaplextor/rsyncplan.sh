@@ -6,6 +6,7 @@ RELEASEDIR=release/
 
 release:
 	make build-one tgz GOOS=linux GOARCH=amd64
+all: clean init release release-all
 init:
 	cd rsyncplan-go && go mod init ${APP}/v2 ; go mod tidy || true ; go mod download
 	cd rsyncplan-exechook && go mod init ${APP}-exechook/v2 ; go mod tidy || true ; go mod download
