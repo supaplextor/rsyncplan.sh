@@ -27,7 +27,9 @@ release-all:
 	make build-one tgz GOOS=freebsd GOARCH=386
 	make build-one tgz GOOS=freebsd GOARCH=amd64
 	make build-one tgz GOOS=freebsd GOARCH=arm
+	make build-one tgz GOOS=linux GOARCH=386
 	make build-one tgz GOOS=linux GOARCH=arm
+	make build-one tgz GOOS=linux GOARCH=arm64
 	make build-one tgz GOOS=linux GOARCH=arm64
 	make build-one tgz GOOS=linux GOARCH=ppc64
 	make build-one tgz GOOS=linux GOARCH=ppc64le
