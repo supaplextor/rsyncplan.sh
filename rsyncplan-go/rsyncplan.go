@@ -6,6 +6,7 @@ import (
 	"log/syslog"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
@@ -17,7 +18,7 @@ func __LINEETC__() string {
 		file = "unknown"
 		line = 0
 	}
-	return fmt.Sprintf("%s:%d ", file, line)
+	return fmt.Sprintf("%s:%d ", filepath.Base(file), line)
 }
 
 func main() {
@@ -104,7 +105,7 @@ func main() {
 	cmd = exec.Command("rsync", allopts...)
 	cmd.Stdout = os.Stdout // Direct stdout to the program's stdout
 	cmd.Stderr = os.Stderr // Direct stderr to the program's stderr
-	cmd.Stdin = os.Stdin   // maybe?
+	cmd.Stdin = os.Stdin
 	err = cmd.Run()
 	if err != nil {
 		log.Fatalf("%s %s %s", __LINEETC__(), "rsync", err.Error())
