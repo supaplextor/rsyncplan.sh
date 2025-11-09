@@ -13,33 +13,33 @@ build-one:
 	cd rsyncplan-go && go build 
 	cd rsyncplan-exechook && go build
 release-all:
-	make build-one tgz GOOS=linux GOARCH=amd64 || true
-#	make build-one tgz GOOS=android GOARCH=arm || true
-#	make build-one tgz GOOS=darwin GOARCH=386 || true	
-	make build-one tgz GOOS=darwin GOARCH=amd64 || true
-#	make build-one tgz GOOS=darwin GOARCH=arm || true
-	make build-one tgz GOOS=darwin GOARCH=arm64 || true
-	make build-one tgz GOOS=plan9 GOARCH=386 || true
-	make build-one tgz GOOS=plan9 GOARCH=amd64 || true
-	make build-one tgz GOOS=solaris GOARCH=amd64 || true
-	make build-one tgz GOOS=dragonfly GOARCH=amd64 || true
-	make build-one tgz GOOS=freebsd GOARCH=386 || true
-	make build-one tgz GOOS=freebsd GOARCH=amd64 || true
-	make build-one tgz GOOS=freebsd GOARCH=arm || true
-	make build-one tgz GOOS=linux GOARCH=arm || true
-	make build-one tgz GOOS=linux GOARCH=arm64 || true
-	make build-one tgz GOOS=linux GOARCH=ppc64 || true
-	make build-one tgz GOOS=linux GOARCH=ppc64le || true
-	make build-one tgz GOOS=linux GOARCH=mips || true
-	make build-one tgz GOOS=linux GOARCH=mipsle || true
-	make build-one tgz GOOS=linux GOARCH=mips64 || true
-	make build-one tgz GOOS=linux GOARCH=mips64le || true
-	make build-one tgz GOOS=netbsd GOARCH=386 || true
-	make build-one tgz GOOS=netbsd GOARCH=amd64 || true
-	make build-one tgz GOOS=netbsd GOARCH=arm || true
-	make build-one tgz GOOS=openbsd GOARCH=386 || true
-	make build-one tgz GOOS=openbsd GOARCH=amd64 || true
-	make build-one tgz GOOS=openbsd GOARCH=arm || true
+# part of 'release' --	make build-one tgz GOOS=linux GOARCH=amd64
+#	make build-one tgz GOOS=android GOARCH=arm
+#	make build-one tgz GOOS=darwin GOARCH=386	
+	make build-one tgz GOOS=darwin GOARCH=amd64
+#	make build-one tgz GOOS=darwin GOARCH=arm
+	make build-one tgz GOOS=darwin GOARCH=arm64
+#	make build-one tgz GOOS=plan9 GOARCH=386
+#	make build-one tgz GOOS=plan9 GOARCH=amd64
+	make build-one tgz GOOS=solaris GOARCH=amd64
+	make build-one tgz GOOS=dragonfly GOARCH=amd64
+	make build-one tgz GOOS=freebsd GOARCH=386
+	make build-one tgz GOOS=freebsd GOARCH=amd64
+	make build-one tgz GOOS=freebsd GOARCH=arm
+	make build-one tgz GOOS=linux GOARCH=arm
+	make build-one tgz GOOS=linux GOARCH=arm64
+	make build-one tgz GOOS=linux GOARCH=ppc64
+	make build-one tgz GOOS=linux GOARCH=ppc64le
+	make build-one tgz GOOS=linux GOARCH=mips
+	make build-one tgz GOOS=linux GOARCH=mipsle
+	make build-one tgz GOOS=linux GOARCH=mips64
+	make build-one tgz GOOS=linux GOARCH=mips64le
+	make build-one tgz GOOS=netbsd GOARCH=386
+	make build-one tgz GOOS=netbsd GOARCH=amd64
+	make build-one tgz GOOS=netbsd GOARCH=arm
+	make build-one tgz GOOS=openbsd GOARCH=386
+	make build-one tgz GOOS=openbsd GOARCH=amd64
+	make build-one tgz GOOS=openbsd GOARCH=arm
 clean:
 	cd rsyncplan-go && go clean
 	cd rsyncplan-exechook && go clean
