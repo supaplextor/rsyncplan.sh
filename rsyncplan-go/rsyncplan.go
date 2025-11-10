@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/syslog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,16 +27,16 @@ func main() {
 	argsWithoutProg := os.Args[1:]
 	args := os.Args
 	RSYNCPLAN_DESTINATION_HOST := args[len(args)-1]
-	/*
-		// Configure the standard logger to write to the syslog.
-		// We set the priority to LOG_NOTICE and the tag to "mygoapp".
-		logwriter, err := syslog.New(syslog.LOG_NOTICE|syslog.LOG_DAEMON, os.Args[0])
-		if err != nil {
-			log.Fatalf("%s%s %s", __LINEETC__(), "Failed to connect to syslog: ", err.Error())
-			os.Exit(3)
-		}
-		log.SetOutput(logwriter)
-	*/
+
+	// Configure the standard logger to write to the syslog.
+	// We set the priority to LOG_NOTICE and the tag to "mygoapp".
+	logwriter, err := syslog.New(syslog.LOG_NOTICE|syslog.LOG_DAEMON, os.Args[0])
+	if err != nil {
+		log.Fatalf("%s%s %s", __LINEETC__(), "Failed to connect to syslog: ", err.Error())
+		os.Exit(3)
+	}
+	log.SetOutput(logwriter)
+
 	if len(argsWithoutProg) == 0 {
 		log.Fatalf("%s %s", __LINEETC__(), "Failure to provide target backup server (ssh+rsync+etc)?")
 		os.Exit(1)
