@@ -65,14 +65,15 @@ func main() {
 	}
 
 	OFS := "/backups/" + me + "/rootfs/"
-	log.Println("Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
+	log.Printf("%s %s %s %s", __LINEETC__(), "Calling ssh", RSYNCPLAN_DESTINATION_HOST, "ls -1d ... ")
 	cmd := exec.Command("ssh", RSYNCPLAN_DESTINATION_HOST,
 		"ls -1d "+OFS+"????-??-??*/ | sort -nr | head -n 20")
 
 	// Capture the output
 	outputString, err := cmd.Output()
 	if err != nil {
-		log.Fatalf("Command failed: %v", err)
+		log.Printf("%s failure: %v", __LINEETC__(), err)
+		//can be blank. continue on...		os.Exit(76)
 	}
 
 	log.Printf("%s from remote stdout: %s", __LINEETC__(), outputString)
@@ -83,16 +84,16 @@ func main() {
 	opsArray := strings.Split(ops, " ")
 	rootfs := "/" // client side; TODO/FIXME/ labels and other filesystems.
 
-	log.Printf("Target destination directory calculated as: %s", OFS+formattedTime+"/")
+	log.Printf("%s Target destination directory calculated as: %s", __LINEETC__(), OFS+formattedTime+"/")
 	allopts := []string{}
 	// log.Printf("%s exec: %v", __LINEETC__(), allopts)
 
 	allopts = append(allopts, opsArray...)
-	log.Printf("%s opsArray... %v", __LINEETC__(), opsArray)
+	//	log.Printf("%s opsArray... %v", __LINEETC__(), opsArray)
 
 	for _, v := range ld {
 		if len(v) != 0 {
-			log.Printf("%s appending %s (len(v)==%d", __LINEETC__(), "--link-dest="+v, len(v))
+			//			log.Printf("%s appending %s (len(v)==%d", __LINEETC__(), "--link-dest="+v, len(v))
 			allopts = append(allopts, "--link-dest="+v)
 		}
 	}
